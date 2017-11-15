@@ -1,0 +1,35 @@
+{
+  "name": "extract-keyframes",
+  "version": "0.0.1",
+  "description": "A module for extract keyframes from video files with FFMPEG",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seanmtracey/extract-keyframes.git"
+  },
+  "keywords": [
+    "FFMPEG",
+    "Keyframes",
+    "mp3",
+    "webm",
+    "mkv"
+  ],
+  "author": "Sean M. Tracey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/seanmtracey/extract-keyframes/issues"
+  },
+  "homepage": "https://github.com/seanmtracey/extract-keyframes#readme",
+  "dependencies": {
+    "debug": "^3.1.0",
+    "dotenv": "^4.0.0",
+    "ffmpeg-static": "^2.0.0",
+    "ffprobe-static": "^2.0.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "rimraf": "^2.6.2",
+    "uuid": "^3.1.0"
+  }
+}
