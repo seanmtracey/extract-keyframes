@@ -1,6 +1,6 @@
 {
   "name": "extract-keyframes",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "A module for extract keyframes from video files with FFMPEG",
   "main": "index.js",
   "scripts": {
@@ -28,7 +28,6 @@
     "dotenv": "^4.0.0",
     "ffmpeg-static": "^2.0.0",
     "ffprobe-static": "^2.0.0",
-    "fluent-ffmpeg": "^2.1.2",
     "rimraf": "^2.6.2",
     "uuid": "^3.1.0"
   }

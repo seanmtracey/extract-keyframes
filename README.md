@@ -55,7 +55,7 @@ If you require sequential keyframes, you will need to store and sort the events 
 
 #### event data
 
-```JSON
+```
 {
 	keyframeTimeOffset : <NUMBER>,
 	image : <BUFFER>,
@@ -73,7 +73,7 @@ To check that all of the keyframes have been identified _and_ have been returned
 
 #### event data
 
-```JSON
+```
 {
 	analysisUUID : <STRING>,
 	totalFrames : <NUMBER>
