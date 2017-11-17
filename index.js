@@ -29,8 +29,8 @@ function extractKeyframes(filePath) {
 		let framesIdentified = 0
 		let framesGenerated = 0;
 
-		const jobUUID = uuid();
-		const outputPath = `${WORKING_DIRECTORY}/${jobUUID}`;
+		const randomDirectoryName = uuid();
+		const outputPath = `${WORKING_DIRECTORY}/${randomDirectoryName}`;
 
 		fs.mkdir(outputPath, function(err){
 
@@ -114,8 +114,7 @@ function extractKeyframes(filePath) {
 
 									const details = {
 										keyframeTimeoffset : Number(frameTime),
-										image : fs.readFileSync( completeOutputFilepath ),
-										analysisUUID : jobUUID
+										image : fs.readFileSync( completeOutputFilepath )
 									};
 
 									debug('>>>', details.keyframeTimeoffset);
@@ -125,7 +124,6 @@ function extractKeyframes(filePath) {
 									if(finishedLooking === true && framesIdentified === framesGenerated){
 
 										emitter.emit('finish', {
-											analysisUUID : jobUUID,
 											totalFrames : framesGenerated
 										});
 
