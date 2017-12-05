@@ -67,7 +67,7 @@ If you require sequential keyframes, you will need to store and sort the events 
 
 Fired _once_ when the identification process has completed (when FFProbe has identifed all of the keyframes in the video). 
 
-This does not necessarrily mean that every keyframe has been extracted from the video file and corresponding `keyframe` event has been triggered. These processes happen indepedently of one another, and are not guarenteed to complete at the same time. 
+This does not necessarrily mean that every keyframe has been extracted from the video file and corresponding `keyframe` event has been triggered. These processes happen independently of one another, and are not guarenteed to complete at the same time. 
 
 To check that all of the keyframes have been identified _and_ have been returned, you must check that the number of `keyframe` events that have been emitted match the `totalFrames` property of the object passed to the `finish` event listener
 
