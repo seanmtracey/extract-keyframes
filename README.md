@@ -36,6 +36,9 @@ extractKeyframes('/path/to/validFile.mp4')
 ;
 ```
 
+By default, the frames are extracted to the `/tmp` folder. To change it, set a `WORKING_DIRECTORY` process environment variable to the path where you want the frames to be extracted when running your app. Example:
+```WORKING_DIRECTORY=/Users/you/Documents/frames node index.js```
+
 ## Events
 
 ### 'start'
