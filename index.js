@@ -22,6 +22,22 @@ function extractKeyframes(fileObject) {
 		return Promise.reject(`No filepath or buffer passed as an argument. Pass a filepath (string) pointing to the video file, or a file object (buffer) of the video you'd like to process`);
 	}
 
+	function exit(emitter){
+
+		emitter.emit('finish', {
+			totalFrames : framesGenerated
+		});
+		
+		rimraf(outputPath, {},(err) => {
+			if(err){
+				debug(`There was an error unlinking '${outputPath}'`, err);
+			} else {
+				debug(`Directory '${outputPath}' successfully unlinked`);
+			}
+		});
+	
+	}
+
 	let firstFrame = true;
 	let finishedLooking = false;
 	let framesIdentified = 0
@@ -154,23 +170,13 @@ function extractKeyframes(fileObject) {
 											debug('>>>', details.keyframeTimeoffset);
 	
 											emitter.emit('keyframe', details);
-	
-											if(finishedLooking === true && framesIdentified === framesGenerated){
-	
-												emitter.emit('finish', {
-													totalFrames : framesGenerated
-												});
-												
-												rimraf(outputPath, {},(err) => {
-													if(err){
-														debug(`There was an error unlinking '${outputPath}'`, err);
-													} else {
-														debug(`Directory '${outputPath}' successfully unlinked`);
-													}
-												});
-	
+											
+											 debug(`finishedLooking: ${finishedLooking} framesIdentified: ${framesIdentified} framesGenerated: ${framesGenerated} EQ: ${framesIdentified === framesGenerated}`);
+
+											if(finishedLooking && framesIdentified === framesGenerated){
+												exit(emitter);
 											}
-	
+
 										}
 	
 									});
@@ -191,8 +197,15 @@ function extractKeyframes(fileObject) {
 							debug(`keyframeTimeIndexExtraction exited with status code 1 and was unhappy`);
 						} else if(code === 0){
 							debug(`keyframeTimeIndexExtraction closed and was happy`);
-	
+							
 							finishedLooking = true;
+
+							if(framesIdentified === framesGenerated){
+
+								debug(`Emitting 'finish' event`);
+								exit(emitter);
+
+							}
 	
 						}
 	

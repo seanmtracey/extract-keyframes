@@ -1,6 +1,6 @@
 {
   "name": "extract-keyframes",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A module for extract keyframes from video files with FFMPEG",
   "main": "index.js",
   "scripts": {
