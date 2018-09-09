@@ -97,7 +97,7 @@ function extractKeyframes(fileObject, dimensions = {}) {
 		.then(filePath => {
 
 			return new Promise( (resolve, reject) => {
-
+				
 				fs.mkdir(outputPath, function(err){
 					
 					if(err){
@@ -111,125 +111,131 @@ function extractKeyframes(fileObject, dimensions = {}) {
 					const emitter = new EventEmitter();
 	
 					resolve(emitter);
-	
-					// FFProbe Options / Listeners
-					const keyframeTimeIndexExtractionArguments = [
-						`-loglevel`,
-						`error`,
-						`-select_streams`,
-						`v:0`,
-						`-show_entries`,
-						`frame=pkt_pts_time,pict_type`,
-						`-of`,
-						`csv=print_section=0`,
-						`${filePath}`
-					];
-	
-					const keyframeTimeIndexExtraction = spawnProcess( FFPROBE_PATH, keyframeTimeIndexExtractionArguments );
-	
-					emitter.emit('start');
-	
-					keyframeTimeIndexExtraction.stdout.on(`data`, (data) => {
-						data = data.toString(`utf8`);
-	
-						// We want to look for frames labelled with 'I'. These are the keyframes
-						if(data.indexOf('I') > -1){
-	
-							data.split('\n').filter(z => {
-									return z.indexOf('I') > 1;
-								})
-								.forEach(data => {
-	
-									debug(`KEYFRAME: ${data}`);
-	
-									const isThisTheFirstFrame = firstFrame;
-									framesIdentified += 1;
-	
-									if(firstFrame === true){
-										firstFrame = false;
-									}
-	
-									const frameTime = data.split(',')[0];
 
-									debug(`Extracting frame from time index ${frameTime}`);
-	
-									const outputFilename = `${uuid()}.jpg`;
-									const completeOutputFilepath = `${outputPath}/${outputFilename}`;
-
-									const keyFrameExtractionArguments = [
-										'-ss',
-										frameTime,
-										'-i',
-										filePath,
-										'-vf',
-										`scale=${dimensions.width}:${dimensions.height}`,
-										'-vframes',
-										'1',
-										'-q:v',
-										'2',
-										completeOutputFilepath
-									];
-
-									const frameExtract = spawnProcess(FFMPEG_PATH, keyFrameExtractionArguments);
-	
-									frameExtract.on(`close`, (code) => {
-	
-										if(code === 1){
-											debug(`frameExtract exited with status code 1 and was unhappy`);
-										} else if(code === 0){
-											debug(`frameExtract closed and was happy`);
-	
-											framesGenerated += 1;
-											debug('FG:', framesGenerated, 'FI:', framesIdentified, 'FT:', frameTime);
-	
-											const details = {
-												keyframeTimeoffset : Number(frameTime),
-												image : fs.readFileSync( completeOutputFilepath )
-											};
-	
-											debug('>>>', details.keyframeTimeoffset);
-	
-											emitter.emit('keyframe', details);
-											
-											 debug(`finishedLooking: ${finishedLooking} framesIdentified: ${framesIdentified} framesGenerated: ${framesGenerated} EQ: ${framesIdentified === framesGenerated}`);
-
-											if(finishedLooking && framesIdentified === framesGenerated){
-												exit(emitter);
-											}
-
+					// Give the application code time to bind to the 'start', 'keyframe', and 'finish' events;
+					setTimeout(function(){
+		
+						// FFProbe Options / Listeners
+						const keyframeTimeIndexExtractionArguments = [
+							`-loglevel`,
+							`error`,
+							`-select_streams`,
+							`v:0`,
+							`-show_entries`,
+							`frame=pkt_pts_time,pict_type`,
+							`-of`,
+							`csv=print_section=0`,
+							`${filePath}`
+						];
+		
+						const keyframeTimeIndexExtraction = spawnProcess( FFPROBE_PATH, keyframeTimeIndexExtractionArguments );
+		
+						emitter.emit('start');
+		
+						keyframeTimeIndexExtraction.stdout.on(`data`, (data) => {
+							data = data.toString(`utf8`);
+		
+							// We want to look for frames labelled with 'I'. These are the keyframes
+							if(data.indexOf('I') > -1){
+		
+								data.split('\n').filter(z => {
+										return z.indexOf('I') > 1;
+									})
+									.forEach(data => {
+		
+										debug(`KEYFRAME: ${data}`);
+		
+										const isThisTheFirstFrame = firstFrame;
+										framesIdentified += 1;
+		
+										if(firstFrame === true){
+											firstFrame = false;
 										}
-	
-									});
-	
-								})
-							;
-	
-						}
-					});
-	
-					keyframeTimeIndexExtraction.stderr.on(`data`, (data) => {
-						debug(`stderr: ${data}`);
-					});
-	
-					keyframeTimeIndexExtraction.on(`close`, (code) => {
-	
-						if(code === 1){
-							debug(`keyframeTimeIndexExtraction exited with status code 1 and was unhappy`);
-						} else if(code === 0){
-							debug(`keyframeTimeIndexExtraction closed and was happy`);
-							
-							finishedLooking = true;
+		
+										const frameTime = data.split(',')[0];
 
-							if(framesIdentified === framesGenerated){
+										debug(`Extracting frame from time index ${frameTime}`);
+		
+										const outputFilename = `${uuid()}.jpg`;
+										const completeOutputFilepath = `${outputPath}/${outputFilename}`;
 
-								debug(`Emitting 'finish' event`);
-								exit(emitter);
+										const keyFrameExtractionArguments = [
+											'-ss',
+											frameTime,
+											'-i',
+											filePath,
+											'-vf',
+											`scale=${dimensions.width}:${dimensions.height}`,
+											'-vframes',
+											'1',
+											'-q:v',
+											'2',
+											completeOutputFilepath
+										];
 
+										const frameExtract = spawnProcess(FFMPEG_PATH, keyFrameExtractionArguments);
+		
+										frameExtract.on(`close`, (code) => {
+		
+											if(code === 1){
+												debug(`frameExtract exited with status code 1 and was unhappy`);
+											} else if(code === 0){
+												debug(`frameExtract closed and was happy`);
+		
+												framesGenerated += 1;
+												debug('FG:', framesGenerated, 'FI:', framesIdentified, 'FT:', frameTime);
+		
+												const details = {
+													keyframeTimeoffset : Number(frameTime),
+													image : fs.readFileSync( completeOutputFilepath )
+												};
+		
+												debug('>>>', details.keyframeTimeoffset);
+		
+												emitter.emit('keyframe', details);
+												
+												debug(`finishedLooking: ${finishedLooking} framesIdentified: ${framesIdentified} framesGenerated: ${framesGenerated} EQ: ${framesIdentified === framesGenerated}`);
+
+												if(finishedLooking && framesIdentified === framesGenerated){
+													exit(emitter);
+												}
+
+											}
+		
+										});
+		
+									})
+								;
+		
 							}
-	
-						}
-	
-					});
+						});
+		
+						keyframeTimeIndexExtraction.stderr.on(`data`, (data) => {
+							debug(`stderr: ${data}`);
+						});
+		
+						keyframeTimeIndexExtraction.on(`close`, (code) => {
+		
+							if(code === 1){
+								debug(`keyframeTimeIndexExtraction exited with status code 1 and was unhappy`);
+								reject(`keyframeTimeIndexExtraction exited with status code 1 and was unhappy`);
+							} else if(code === 0){
+								debug(`keyframeTimeIndexExtraction closed and was happy`);
+								
+								finishedLooking = true;
+
+								if(framesIdentified === framesGenerated){
+
+									debug(`Emitting 'finish' event`);
+									exit(emitter);
+
+								}
+		
+							}
+		
+						});
+
+					}, 100);
 	
 				});
 				
