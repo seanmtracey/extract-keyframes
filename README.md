@@ -39,6 +39,24 @@ extractKeyframes('/path/to/validFile.mp4')
 By default, the frames are extracted to the `/tmp` folder. To change it, set a `WORKING_DIRECTORY` process environment variable to the path where you want the frames to be extracted when running your app. Example:
 ```WORKING_DIRECTORY=/Users/you/Documents/frames node index.js```
 
+## Function Options
+
+`extractKeyframes(<FILEPATH | BUFFER>, <DIMENSIONS>)`
+
+### FILEPATH
+
+A relative or absolute path to the media file you wish to analyse, or a Node.js buffer containing the video file that you wish to extract keyframes from.
+
+### DIMENSIONS
+
+An object with the desired height/width of the extracted keyframes. If not passed, the keyframes will be extracted at the same resolution as the source media. If only one dimension is passed (either height or width) then the image will be extracted with that dimension, and the scale maintained along the other dimension.
+```
+	{
+		width : <INT>,
+		height : <INT>
+	}
+```
+
 ## Events
 
 ### 'start'
@@ -48,7 +66,7 @@ Fired _once_ when the extraction process has begun (when FFProbe is spawned and 
 #### event data
 *This event returns no data.*
 
-### 'keyframes'
+### 'keyframe'
 
 Fired every time a key frame has been identified and extracted from the passed video file. Keyframes are extracted in the order that the frames are identified, but they are not guarenteed to be emitted to the user of the module in that order. 
 

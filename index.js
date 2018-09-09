@@ -16,7 +16,7 @@ function spawnProcess(binaryPath, args){
 	return spawn(binaryPath, args);
 }
 
-function extractKeyframes(fileObject) {
+function extractKeyframes(fileObject, dimensions = {}) {
 
 	if(!fileObject){
 		return Promise.reject(`No filepath or buffer passed as an argument. Pass a filepath (string) pointing to the video file, or a file object (buffer) of the video you'd like to process`);
@@ -36,6 +36,22 @@ function extractKeyframes(fileObject) {
 			}
 		});
 	
+	}
+
+	if(!dimensions.width){
+		dimensions.width = -1;
+	}
+
+	if(!dimensions.height){
+		dimensions.height = -1;
+	}
+
+	if(dimensions.width < -1){
+		return Promise.reject(`Value of 'width' in dimensions object is less then -1. Values must be >= -1`);
+	}
+
+	if(dimensions.height < -1){
+		return Promise.reject(`Value of 'height' in dimensions object is less then -1. Values must be >= -1`);
 	}
 
 	let firstFrame = true;
@@ -119,7 +135,7 @@ function extractKeyframes(fileObject) {
 						// We want to look for frames labelled with 'I'. These are the keyframes
 						if(data.indexOf('I') > -1){
 	
-							const instances = data.split('\n').filter(z => {
+							data.split('\n').filter(z => {
 									return z.indexOf('I') > 1;
 								})
 								.forEach(data => {
@@ -134,22 +150,26 @@ function extractKeyframes(fileObject) {
 									}
 	
 									const frameTime = data.split(',')[0];
+
+									debug(`Extracting frame from time index ${frameTime}`);
 	
 									const outputFilename = `${uuid()}.jpg`;
 									const completeOutputFilepath = `${outputPath}/${outputFilename}`;
-	
+
 									const keyFrameExtractionArguments = [
 										'-ss',
 										frameTime,
 										'-i',
 										filePath,
+										'-vf',
+										`scale=${dimensions.width}:${dimensions.height}`,
 										'-vframes',
 										'1',
 										'-q:v',
 										'2',
 										completeOutputFilepath
 									];
-	
+
 									const frameExtract = spawnProcess(FFMPEG_PATH, keyFrameExtractionArguments);
 	
 									frameExtract.on(`close`, (code) => {
